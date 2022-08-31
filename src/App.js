@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+
+import Layout from "./components/Layout";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import lstRoute from "./routes/routes";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          {lstRoute.map((item, index) => {
+            const Element = item.element;
+            return (
+              <Route key={index} path={item.path} element={<Element />}>
+                {item.children.map((child, index2) => (
+                  <Route path={child.path} key={index2}></Route>
+                ))}
+              </Route>
+            );
+          })}
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }
 
