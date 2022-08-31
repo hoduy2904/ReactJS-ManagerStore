@@ -1,75 +1,108 @@
-import { Button, Input, Table, Typography } from "antd";
+import { Button, Input, Table, Typography, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-const columns = [
-  {
-    title: "Mã hàng hoá",
-    dataIndex: "mahh",
-    sorter: {
-      compare: (a, b) => a.chinese - b.chinese,
-      multiple: 4,
-    },
-  },
-  {
-    title: "Tên hàng hoá",
-    dataIndex: "tenhang",
-    sorter: {
-      compare: (a, b) => a.chinese - b.chinese,
-      multiple: 3,
-    },
-  },
-  {
-    title: "Giá vốn",
-    dataIndex: "giavon",
-    sorter: {
-      compare: (a, b) => a.math - b.math,
-      multiple: 2,
-    },
-  },
-  {
-    title: "Giá bán",
-    dataIndex: "giaban",
-    sorter: {
-      compare: (a, b) => a.english - b.english,
-      multiple: 2,
-    },
-  },
-  {
-    title: "Số lượng",
-    dataIndex: "soluong",
-    sorter: {
-      compare: (a, b) => a.english - b.english,
-      multiple: 2,
-    },
-  },
-  {
-    title: "Ngày tạo",
-    dataIndex: "ngaytao",
-    sorter: {
-      compare: (a, b) => a.english - b.english,
-      multiple: 2,
-    },
-  },
-];
-let data = [
-  {
-    key: "1",
-    mahh: "DH001",
-    tenhang: "iPhone 13 Pro Max",
-    giavon: "500.000vnđ",
-    giaban: "100.000.000 vnđ",
-    soluong: 50,
-    ngaytao: "25/12/2022",
-  },
-];
-
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { products, editProduct } from "../../utils";
 const { Title } = Typography;
 
 const { Search } = Input;
 
 const Products = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch(products)
+      .then((res) => res.json())
+      .then((data) => {
+        data = data.map((item) => ({ key: item.mahh, ...item }));
+        setIsLoading(false);
+        setData(data);
+        setLstFilter(data);
+      });
+  }, []);
+
+  const handleDelete = (key) => {
+    const newData = data.filter((item) => item.key !== key);
+    setData(newData);
+    setLstFilter(newData);
+  };
+
+  const columns = [
+    {
+      title: "Mã hàng hoá",
+      dataIndex: "mahh",
+      sorter: {
+        compare: (a, b) => a.chinese - b.chinese,
+        multiple: 4,
+      },
+    },
+    {
+      title: "Tên hàng hoá",
+      dataIndex: "tenhang",
+      sorter: {
+        compare: (a, b) => a.chinese - b.chinese,
+        multiple: 3,
+      },
+    },
+    {
+      title: "Giá vốn",
+      dataIndex: "giavon",
+      sorter: {
+        compare: (a, b) => a.math - b.math,
+        multiple: 2,
+      },
+    },
+    {
+      title: "Giá bán",
+      dataIndex: "giaban",
+      sorter: {
+        compare: (a, b) => a.english - b.english,
+        multiple: 2,
+      },
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soluong",
+      sorter: {
+        compare: (a, b) => a.english - b.english,
+        multiple: 2,
+      },
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "ngaytao",
+      sorter: {
+        compare: (a, b) => a.english - b.english,
+        multiple: 2,
+      },
+    },
+    {
+      title: "Chức năng",
+      dataIndex: "chucnang",
+      render: (_, record) =>
+        data.length >= 1 ? (
+          <>
+            <Popconfirm
+              title="Bạn có muốn xoá?"
+              onConfirm={() => handleDelete(record.key)}
+            >
+              <DeleteOutlined
+                style={{
+                  color: "red",
+                  margin: "0 5px",
+                }}
+              />
+            </Popconfirm>
+            <Link className="text-blue-500" to={`/Products/Edit/` + record.key}>
+              <EditOutlined />
+            </Link>
+          </>
+        ) : null,
+    },
+  ];
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const params = useParams();
 
   const onSelectChange = (newSelectedRowKeys) => {
     console.log("selectedRowKeys changed: ", selectedRowKeys);
@@ -132,6 +165,7 @@ const Products = () => {
         ></Search>
       </div>
       <Table
+        loading={isLoading}
         columns={columns}
         rowSelection={rowSelection}
         dataSource={lstFilter}
