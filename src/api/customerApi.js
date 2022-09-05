@@ -2,7 +2,7 @@ import { request } from "../utils";
 
 export const Get = async (page, search) => {
   try {
-    const res = await request.Get("api/danhmucs", {
+    const res = await request.Get("api/khachhangs", {
       page,
       search,
       pageSize: 5,
@@ -14,9 +14,9 @@ export const Get = async (page, search) => {
   }
 };
 
-export const GetDM = async (id) => {
+export const GetKH = async (id) => {
   try {
-    const res = await request.Get(`api/danhmucs/${id}`);
+    const res = await request.Get(`api/khachhangs/${id}`);
     return res;
   } catch (error) {
     return error;
@@ -25,7 +25,7 @@ export const GetDM = async (id) => {
 
 export const Delete = async (id) => {
   try {
-    const res = await request.Delete("api/danhmucs/", id);
+    const res = await request.Delete(`api/khachhangs/${id}`);
     return res;
   } catch (error) {
     return error;
@@ -33,7 +33,7 @@ export const Delete = async (id) => {
 };
 export const Add = async (param) => {
   try {
-    const res = await request.Post("api/danhmucs/", param);
+    const res = await request.Post("api/khachhangs/", param);
     return res;
   } catch (error) {
     return error;
@@ -42,7 +42,7 @@ export const Add = async (param) => {
 
 export const Edit = async (param) => {
   try {
-    const res = await request.Put("api/danhmucs/", param);
+    const res = await request.Put("api/khachhangs/", param);
     return res;
   } catch (error) {
     return error;

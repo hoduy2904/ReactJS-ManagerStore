@@ -1,5 +1,9 @@
-import Customers from "../components/Customers";
+import Customers, { CustomerAdd, CustomerEdit } from "../components/Customers";
 import Products, { ProductAdd, ProductEdit } from "../components/Products";
+import Categories, {
+  CategoryAdd,
+  CategoryEdit,
+} from "../components/Categories";
 import Sale from "../components/Sale";
 import {
   UserOutlined,
@@ -55,6 +59,46 @@ const Routes = [
     element: Customers,
     icon: TeamOutlined,
     showMenu: true,
+    children: [],
+  },
+  {
+    name: "Thêm Khách hàng",
+    path: "/customers/Add",
+    element: CustomerAdd,
+    icon: TeamOutlined,
+    showMenu: false,
+    children: [],
+  },
+  {
+    name: "Sửa Khách hàng",
+    path: "/customers/Edit/:id",
+    element: CustomerEdit,
+    icon: TeamOutlined,
+    showMenu: false,
+    children: [],
+  },
+  {
+    name: "Danh mục",
+    path: "/categories",
+    element: Categories,
+    icon: TeamOutlined,
+    showMenu: true,
+    children: [],
+  },
+  {
+    name: "Chỉnh sửa Danh mục",
+    path: "/categories/Edit/:id",
+    element: CategoryEdit,
+    icon: TeamOutlined,
+    showMenu: false,
+    children: [],
+  },
+  {
+    name: "Danh mục",
+    path: "/categories/Add",
+    element: CategoryAdd,
+    icon: TeamOutlined,
+    showMenu: false,
     children: [],
   },
 ];
