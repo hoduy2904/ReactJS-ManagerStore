@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Avatar,
   Button,
@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import Routes from "../../routes/routes";
 
 const { Header, Content, Sider } = Layout;
 
@@ -37,7 +38,7 @@ const Index = ({ children }) => {
   }
 
   const [showSider, setShowSider] = useState(false);
-
+  const [selectKeys, setSelectkeys] = useState([window.location.pathname]);
   const [isDark, setIsDark] = useState(false);
 
   const handleShowSider = (result) => {
@@ -76,20 +77,19 @@ const Index = ({ children }) => {
     />
   );
 
-  const items = [
-    getItem(<Link to="/">Trang chủ</Link>, "1", <PieChartOutlined />),
-    getItem(<Link to="/products">Sản phẩm</Link>, "2", <DesktopOutlined />),
-    getItem(<Link to="/khachhang">Khách hàng</Link>, "sub1", <UserOutlined />, [
-      getItem("Tom", "3"),
-      getItem("Bill", "4"),
-      getItem("Alex", "5"),
-    ]),
-    getItem("Team", "sub2", <TeamOutlined />, [
-      getItem("Team 1", "6"),
-      getItem("Team 2", "8"),
-    ]),
-    getItem("Files", "9", <FileOutlined />),
-  ];
+  const items = Routes.filter((route) => route.showMenu).map((item) => {
+    const ICON = item.icon;
+    return getItem(
+      <Link to={item.path}>{item.name}</Link>,
+      item.path,
+      ICON && <ICON />
+    );
+  });
+
+  const selectMenu = (e) => {
+    setSelectkeys([e.key]);
+    showSider && setCollapsed(true);
+  };
 
   return (
     <Layout
@@ -114,7 +114,13 @@ const Index = ({ children }) => {
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/768px-Google_%22G%22_Logo.svg.png"
           />
         </div>
-        <Menu theme={isDark && "dark"} items={items}></Menu>
+        <Menu
+          defaultSelectedKeys={["/"]}
+          selectedKeys={selectKeys}
+          onSelect={selectMenu}
+          theme={isDark && "dark"}
+          items={items}
+        ></Menu>
       </Sider>
       <Layout>
         <Header

@@ -1,1 +1,1 @@
-export { products, editProduct } from "./api";
+export * as request from "./request";

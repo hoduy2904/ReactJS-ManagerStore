@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-const Sale = () => {
+const Sale = ({ title }) => {
+  useEffect(() => {
+    document.title = title;
+  });
   return <div>Sale</div>;
 };
 

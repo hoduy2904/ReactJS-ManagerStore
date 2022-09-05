@@ -1,31 +1,47 @@
-import { Button, Input, Table, Typography, Popconfirm } from "antd";
+import { Button, Input, Table, Typography, Popconfirm, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { products, editProduct } from "../../utils";
+import * as ProductApi from "../../api/productsApi";
+import { useDebounce } from "../../hooks";
 const { Title } = Typography;
 
 const { Search } = Input;
 
-const Products = () => {
+const Products = ({ title }) => {
+  //useState
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({});
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(data.page ?? 1);
+
+  const debounce = useDebounce(search, 500);
+
+  const Fetch = async () => {
+    setIsLoading(true);
+    const result = await ProductApi.Get(page, search);
+    if (result.code) {
+      message.error(result.message);
+      setIsLoading(false);
+
+      return;
+    }
+    setData(result);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    fetch(products)
-      .then((res) => res.json())
-      .then((data) => {
-        data = data.map((item) => ({ key: item.mahh, ...item }));
-        setIsLoading(false);
-        setData(data);
-        setLstFilter(data);
-      });
-  }, []);
+    document.title = title;
+    Fetch();
+  }, [debounce, page]);
 
-  const handleDelete = (key) => {
-    const newData = data.filter((item) => item.key !== key);
-    setData(newData);
-    setLstFilter(newData);
+  const handleDelete = async (key) => {
+    const res = await ProductApi.Delete(key);
+    if (res.success) {
+      Fetch();
+      message.success("Xoá thành công");
+    }
   };
 
   const columns = [
@@ -72,6 +88,7 @@ const Products = () => {
     {
       title: "Ngày tạo",
       dataIndex: "ngaytao",
+      render: (record) => new Date(record).toLocaleString(),
       sorter: {
         compare: (a, b) => a.english - b.english,
         multiple: 2,
@@ -81,11 +98,11 @@ const Products = () => {
       title: "Chức năng",
       dataIndex: "chucnang",
       render: (_, record) =>
-        data.length >= 1 ? (
+        data.data.length >= 1 ? (
           <>
             <Popconfirm
               title="Bạn có muốn xoá?"
-              onConfirm={() => handleDelete(record.key)}
+              onConfirm={() => handleDelete([record.key])}
             >
               <DeleteOutlined
                 style={{
@@ -94,7 +111,11 @@ const Products = () => {
                 }}
               />
             </Popconfirm>
-            <Link className="text-blue-500" to={`/Products/Edit/` + record.key}>
+            <Link
+              state={record}
+              className="text-blue-500"
+              to={`/Products/Edit/` + record.key}
+            >
               <EditOutlined />
             </Link>
           </>
@@ -115,20 +136,13 @@ const Products = () => {
   };
 
   const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
+    setPage(pagination.current);
+    console.log(pagination);
   };
 
   const handleDeletes = () => {
-    console.log(selectedRowKeys);
+    handleDelete(selectedRowKeys);
   };
-
-  const [search, setSearch] = useState("");
-  const [lstFilter, setLstFilter] = useState(data);
-
-  useEffect(() => {
-    if (search) setLstFilter(data.filter((item) => item.name.includes(search)));
-    else setLstFilter(data);
-  }, [search]);
 
   return (
     <>
@@ -146,15 +160,20 @@ const Products = () => {
           <Link to="/Products/Add" className="ant-btn ant-btn-primary mb-2">
             Thêm mới
           </Link>
-          <Button
-            className="ml-2"
-            type="primary"
-            danger
+          <Popconfirm
+            title={`Bạn có muốn xoá ${selectedRowKeys.length} sản phẩm`}
             disabled={selectedRowKeys.length < 1}
-            onClick={handleDeletes}
+            onConfirm={handleDeletes}
           >
-            Xoá
-          </Button>
+            <Button
+              className="ml-2"
+              type="primary"
+              danger
+              disabled={selectedRowKeys.length < 1}
+            >
+              Xoá
+            </Button>
+          </Popconfirm>
         </div>
 
         <Search
@@ -165,11 +184,21 @@ const Products = () => {
         ></Search>
       </div>
       <Table
+        scroll={{
+          x: true,
+        }}
         loading={isLoading}
         columns={columns}
         rowSelection={rowSelection}
-        dataSource={lstFilter}
+        dataSource={data.data}
         onChange={onChange}
+        pagination={{
+          pageSize: 5,
+          current: page,
+          defaultCurrent: 1,
+          total: data.totalPage * 5,
+          hideOnSinglePage: true,
+        }}
       />
     </>
   );

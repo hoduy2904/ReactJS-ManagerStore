@@ -10,13 +10,18 @@ function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          {lstRoute.map((item, index) => {
+          {lstRoute.map((item) => {
             const Element = item.element;
             return (
-              <Route key={index} path={item.path} element={<Element />}>
-                {item.children.map((child, index2) => (
-                  <Route path={child.path} key={index2}></Route>
-                ))}
+              <Route
+                key={item.name}
+                path={item.path}
+                element={<Element title={item.name} />}
+              >
+                {item.children.length > 0 &&
+                  item.children.map((child) => (
+                    <Route key={child.name} path={child.param} />
+                  ))}
               </Route>
             );
           })}
